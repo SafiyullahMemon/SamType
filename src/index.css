@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-color: #0f172a; /* slate 900 */
+    --bg-secondary: #1e293b; /* slate 800 */
+    --text-primary: #f8fafc; /* slate 50 */
+    --text-secondary: #64748b; /* slate 500 */
+    --accent: #38bdf8; /* sky 400 */
+    --accent-hover: #0ea5e9;
+    --error: #ef4444; /* red 500 */
+    --extra: #991b1b;
+  }
+  
+  [data-theme="light"] {
+    --bg-color: #f8fafc;
+    --bg-secondary: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #94a3b8;
+    --accent: #0ea5e9;
+    --accent-hover: #0284c7;
+    --error: #ef4444;
+    --extra: #b91c1c;
+  }
+  
+  [data-theme="cyberpunk"] {
+    --bg-color: #fce73d;
+    --bg-secondary: #e5d12a;
+    --text-primary: #000000;
+    --text-secondary: #ff003c;
+    --accent: #00f0ff;
+    --accent-hover: #00c3cf;
+    --error: #ff003c;
+    --extra: #8c0021;
+  }
+  
+  [data-theme="matcha"] {
+    --bg-color: #f3f4f1;
+    --bg-secondary: #e4e6de;
+    --text-primary: #4b5320;
+    --text-secondary: #9db261;
+    --accent: #7fa873;
+    --accent-hover: #678c5c;
+    --error: #d9534f;
+    --extra: #993333;
+  }
+  
+  [data-theme="dracula"] {
+    --bg-color: #282a36;
+    --bg-secondary: #44475a;
+    --text-primary: #f8f8f2;
+    --text-secondary: #6272a4;
+    --accent: #ff79c6;
+    --accent-hover: #ff92d0;
+    --error: #ff5555;
+    --extra: #ffb86c;
+  }
+  
+  [data-theme="nord"] {
+    --bg-color: #2e3440;
+    --bg-secondary: #3b4252;
+    --text-primary: #eceff4;
+    --text-secondary: #4c566a;
+    --accent: #88c0d0;
+    --accent-hover: #8fbcbb;
+    --error: #bf616a;
+    --extra: #d08770;
+  }
+  
+  [data-theme="synthwave"] {
+    --bg-color: #2b213a;
+    --bg-secondary: #3f3155;
+    --text-primary: #f9f871;
+    --text-secondary: #ff9671;
+    --accent: #ffc75f;
+    --accent-hover: #f9f871;
+    --error: #ff5e78;
+    --extra: #d63447;
+  }
+
+  [data-theme="terminal"] {
+    --bg-color: #000000;
+    --bg-secondary: #111111;
+    --text-primary: #33ff00;
+    --text-secondary: #006600;
+    --accent: #33ff00;
+    --accent-hover: #66ff33;
+    --error: #ff0000;
+    --extra: #800000;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: 'Inter', 'Roboto', sans-serif;
+  }
+}
+
+.blur-overlay {
+  filter: blur(5px);
+  opacity: 0.5;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.caret-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
