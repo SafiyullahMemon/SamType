@@ -1,5 +1,4 @@
 import React from 'react';
-import { Keyboard, Crown, Info, Settings, Bell, User } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -12,18 +11,6 @@ export default function Header() {
           </div>
           samtype
         </h1>
-        
-        <div className="flex items-center gap-5 mt-1 ml-4">
-          <Keyboard className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
-          <Crown className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
-          <Info className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
-          <Settings className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-5 mt-1">
-        <Bell className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
-        <User className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
       </div>
     </header>
   );
