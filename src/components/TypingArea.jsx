@@ -240,10 +240,16 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
 
   return (
     <div className="flex flex-col items-center w-full">
-      {status === 'idle' && (
-        <div className="flex justify-center items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm">
+      {status === 'idle' ? (
+        <div className="flex justify-center items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm h-8">
           <Globe className="w-4 h-4" /> english
         </div>
+      ) : status === 'typing' ? (
+        <div className="flex justify-start w-full max-w-[1000px] mb-6 h-8">
+          <span className="text-[var(--accent)] text-2xl font-bold pl-2">{timeLeft}</span>
+        </div>
+      ) : (
+        <div className="h-8 mb-6"></div>
       )}
       
       <div 
