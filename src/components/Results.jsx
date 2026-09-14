@@ -148,11 +148,6 @@ export default function Results({ stats, gameTime, onRestart }) {
         </button>
       </div>
 
-      {/* Sign in Prompt */}
-      <div className="text-[var(--text-secondary)] text-sm mb-4">
-         Sign in to save your result
-      </div>
-
     </div>
   );
 }
