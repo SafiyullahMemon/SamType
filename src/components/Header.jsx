@@ -1,26 +1,29 @@
 import React from 'react';
+import { Keyboard, Crown, Info, Settings, Bell, User } from 'lucide-react';
 
-const THEMES = ['dark', 'light', 'cyberpunk', 'matcha', 'dracula', 'nord', 'synthwave', 'terminal'];
-
-export default function Header({ theme, setTheme }) {
+export default function Header() {
   return (
-    <header className="flex justify-between items-center py-4">
-      <h1 className="text-4xl font-bold flex items-center gap-3 text-[var(--text-primary)] hover:scale-105 transition-transform cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-12 h-12 fill-[var(--text-secondary)]">
-          <path d="M24 12L18.3431 17.6569L16.9289 16.2426L21.1716 12L16.9289 7.75736L18.3431 6.34315L24 12ZM2.82843 12L7.07107 16.2426L5.65685 17.6569L0 12L5.65685 6.34315L7.07107 7.75736L2.82843 12ZM9.78845 21H7.66009L14.2116 3H16.3399L9.78845 21Z"></path>
-        </svg>
-        SamType
-      </h1>
-      <div>
-        <select 
-          className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-4 py-2 rounded-lg cursor-pointer outline-none focus:ring-2 focus:ring-[var(--accent)] font-mono transition-colors shadow-sm"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-        >
-          {THEMES.map(t => (
-            <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-          ))}
-        </select>
+    <header className="flex justify-between items-center py-4 text-[var(--text-secondary)]">
+      <div className="flex items-center gap-6">
+        <h1 className="text-3xl font-bold flex items-center gap-3 text-[var(--text-primary)] cursor-pointer group">
+          <div className="relative flex flex-col items-center justify-center bg-transparent border-2 border-[var(--text-primary)] w-10 h-8 rounded text-[var(--text-primary)] group-hover:bg-[var(--text-primary)] group-hover:text-[var(--bg-color)] transition-colors">
+             <span className="font-bold text-[10px] leading-none mt-0.5">sam</span>
+             <span className="font-bold text-[10px] leading-none mb-0.5">type</span>
+          </div>
+          samtype
+        </h1>
+        
+        <div className="flex items-center gap-5 mt-1 ml-4">
+          <Keyboard className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
+          <Crown className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
+          <Info className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
+          <Settings className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-5 mt-1">
+        <Bell className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
+        <User className="w-[18px] h-[18px] cursor-pointer hover:text-[var(--text-primary)] transition-colors" />
       </div>
     </header>
   );

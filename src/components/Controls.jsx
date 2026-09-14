@@ -1,36 +1,75 @@
 import React from 'react';
+import { AtSign, Hash, Clock, Type, Quote, Mountain, Wrench } from 'lucide-react';
 
-export default function Controls({ gameTime, timeLeft, status, onTimeChange, onNewGame }) {
-  const TIMES = [15, 30, 45, 60];
+export default function Controls({ mode, setMode, gameTime, wordCount, setWordCount, onTimeChange }) {
+  const TIMES = [15, 30, 60, 120];
+  const WORDS = [10, 25, 50, 100];
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center bg-[var(--bg-secondary)] p-4 rounded-xl shadow-lg transition-colors gap-4">
-      <div className="text-[var(--accent)] text-2xl font-bold font-mono w-24 text-center sm:text-left">
-        {status === 'idle' ? gameTime : timeLeft}s
-      </div>
-      
-      <div className="flex gap-2">
-        {TIMES.map(t => (
-          <button
-            key={t}
-            onClick={() => onTimeChange(t)}
-            className={`px-4 py-2 rounded-lg font-bold transition-all duration-200 hover:scale-105 ${
-              gameTime === t 
-                ? 'bg-[var(--accent)] text-[var(--bg-color)]' 
-                : 'text-[var(--text-primary)] hover:bg-[var(--bg-color)] hover:text-[var(--accent)]'
-            }`}
-          >
-            {t}
+    <div className="flex justify-center text-[12px] text-[var(--text-secondary)] font-mono">
+      <div className="flex items-center gap-4">
+        
+        {/* Modifiers */}
+        <div className="flex items-center gap-4 bg-[var(--bg-secondary)]/50 rounded-lg px-4 py-1.5 transition-colors">
+          <button className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors">
+            <AtSign className="w-3.5 h-3.5" /> punctuation
           </button>
-        ))}
-      </div>
+          <button className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors">
+            <Hash className="w-3.5 h-3.5" /> numbers
+          </button>
+        </div>
 
-      <button
-        onClick={onNewGame}
-        className="px-6 py-2 rounded-lg font-bold bg-[var(--text-primary)] text-[var(--bg-color)] hover:scale-105 hover:bg-[var(--accent)] transition-all duration-200 shadow-md flex items-center justify-center gap-2 outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2 focus:ring-offset-[var(--bg-secondary)]"
-      >
-        <span>↻</span> New Game
-      </button>
+        {/* Modes */}
+        <div className="flex items-center gap-5 bg-[var(--bg-secondary)]/50 rounded-lg px-4 py-1.5 transition-colors">
+          <button 
+            onClick={() => setMode('time')}
+            className={`flex items-center gap-2 transition-colors ${mode === 'time' ? 'text-[var(--accent)]' : 'hover:text-[var(--text-primary)]'}`}
+          >
+            <Clock className="w-3.5 h-3.5" /> time
+          </button>
+          <button 
+            onClick={() => setMode('words')}
+            className={`flex items-center gap-2 transition-colors ${mode === 'words' ? 'text-[var(--accent)]' : 'hover:text-[var(--text-primary)]'}`}
+          >
+            <Type className="w-3.5 h-3.5" /> words
+          </button>
+          <button className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors">
+            <Quote className="w-3.5 h-3.5" /> quote
+          </button>
+          <button className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors">
+            <Mountain className="w-3.5 h-3.5" /> zen
+          </button>
+          <button className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors">
+            <Wrench className="w-3.5 h-3.5" /> custom
+          </button>
+        </div>
+
+        {/* Values */}
+        <div className="flex items-center gap-4 bg-[var(--bg-secondary)]/50 rounded-lg px-4 py-1.5 transition-colors">
+          {mode === 'time' && TIMES.map(t => (
+            <button
+              key={t}
+              onClick={() => onTimeChange(t)}
+              className={`transition-colors ${gameTime === t ? 'text-[var(--accent)]' : 'hover:text-[var(--text-primary)]'}`}
+            >
+              {t}
+            </button>
+          ))}
+          {mode === 'words' && WORDS.map(w => (
+            <button
+              key={w}
+              onClick={() => setWordCount(w)}
+              className={`transition-colors ${wordCount === w ? 'text-[var(--accent)]' : 'hover:text-[var(--text-primary)]'}`}
+            >
+              {w}
+            </button>
+          ))}
+          <button className="hover:text-[var(--text-primary)] transition-colors ml-2">
+            <Wrench className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+      </div>
     </div>
   );
 }
