@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Globe, RotateCcw } from 'lucide-react';
+import { Globe, RotateCcw, Square } from 'lucide-react';
 
-export default function TypingArea({ words, status, setStatus, timeLeft, setTimeLeft, gameTime, onGameEnd, onRestart }) {
+export default function TypingArea({ words, status, setStatus, timeLeft, setTimeLeft, gameTime, mode, wordCount, elapsedTime, setElapsedTime, onGameEnd, onRestart }) {
   const [typedWords, setTypedWords] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentInput, setCurrentInput] = useState('');
@@ -13,6 +13,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
   
   const containerRef = useRef(null);
   const timerRef = useRef(null);
+  const stopwatchRef = useRef(null);
   const stateRef = useRef({ typedWords: [], currentInput: '', words: [], errorsThisSecond: 0 });
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
       setErrorsThisSecond(0);
       setTabPressed(false);
       clearInterval(timerRef.current);
+      clearInterval(stopwatchRef.current);
       if (containerRef.current) {
         containerRef.current.style.marginTop = '0px';
       }
@@ -65,7 +67,6 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
           if (i < state.typedWords.length) missed++;
         }
       }
-      // Count the space between words as a correct character for completed words
       if (i < state.typedWords.length) {
          correct++; 
       }
@@ -75,8 +76,33 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
     return { correct, incorrect, extra, missed, totalTyped };
   };
 
+  const finishGame = () => {
+    clearInterval(timerRef.current);
+    clearInterval(stopwatchRef.current);
+    const finalState = stateRef.current;
+    const finalStats = calculateCurrentStats(finalState);
+    const elapsed = mode === 'time' || mode === 'custom' ? gameTime : elapsedTime;
+    const finalTimeElapsedMin = Math.max(elapsed, 1) / 60;
+    const finalWpm = (finalStats.correct / 5) / finalTimeElapsedMin;
+    const finalAccuracy = (finalStats.correct + finalStats.incorrect + finalStats.extra + finalStats.missed) > 0
+      ? (finalStats.correct / (finalStats.correct + finalStats.incorrect + finalStats.extra + finalStats.missed)) * 100
+      : 0;
+
+    setHistory(latestHistory => {
+      onGameEnd({
+        wpm: finalWpm,
+        accuracy: finalAccuracy,
+        raw: (finalStats.totalTyped / 5) / finalTimeElapsedMin,
+        chars: `${finalStats.correct}/${finalStats.incorrect}/${finalStats.extra}/${finalStats.missed}`,
+        history: latestHistory
+      });
+      return latestHistory;
+    });
+  };
+
+  // Timer for time/custom modes (countdown)
   useEffect(() => {
-    if (status === 'typing' && timeLeft > 0) {
+    if (status === 'typing' && (mode === 'time' || mode === 'custom') && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           const currentSecond = gameTime - prev + 1;
@@ -100,21 +126,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
           
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            const finalStats = calculateCurrentStats(stateRef.current);
-            const finalTimeElapsedMin = gameTime / 60;
-            const finalWpm = (finalStats.correct / 5) / finalTimeElapsedMin;
-            const finalAccuracy = finalStats.totalTyped > 0 ? (finalStats.correct / (finalStats.correct + finalStats.incorrect + finalStats.extra + finalStats.missed)) * 100 : 0;
-            
-            setHistory(latestHistory => {
-               onGameEnd({
-                 wpm: finalWpm,
-                 accuracy: finalAccuracy,
-                 raw: (finalStats.totalTyped / 5) / finalTimeElapsedMin,
-                 chars: `${finalStats.correct}/${finalStats.incorrect}/${finalStats.extra}/${finalStats.missed}`,
-                 history: latestHistory
-               });
-               return latestHistory;
-            });
+            finishGame();
             return 0;
           }
           return prev - 1;
@@ -122,16 +134,54 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
       }, 1000);
     }
     return () => clearInterval(timerRef.current);
-  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [status, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stopwatch for words/quote/zen modes (count up)
+  useEffect(() => {
+    if (status === 'typing' && (mode === 'words' || mode === 'quote' || mode === 'zen')) {
+      stopwatchRef.current = setInterval(() => {
+        setElapsedTime(prev => {
+          const newElapsed = prev + 1;
+          const state = stateRef.current;
+          const stats = calculateCurrentStats(state);
+          const timeElapsedMin = newElapsed / 60;
+
+          const wpm = timeElapsedMin > 0 ? (stats.correct / 5) / timeElapsedMin : 0;
+          const rawWpm = timeElapsedMin > 0 ? (stats.totalTyped / 5) / timeElapsedMin : 0;
+
+          setHistory(oldHistory => {
+            return [...oldHistory, {
+              name: newElapsed,
+              wpm: Math.round(wpm),
+              raw: Math.round(rawWpm),
+              errors: state.errorsThisSecond > 0 ? state.errorsThisSecond : null
+            }];
+          });
+
+          setErrorsThisSecond(0);
+          return newElapsed;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(stopwatchRef.current);
+  }, [status, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check if words/quote mode is complete
+  useEffect(() => {
+    if (status === 'typing' && (mode === 'words' || mode === 'quote')) {
+      if (currentWordIndex >= words.length && words.length > 0) {
+        finishGame();
+      }
+    }
+  }, [currentWordIndex, status, mode, words.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleKeyDown = (e) => {
     if (status === 'finished') return;
     
-    // Tab + Enter restart: press Tab first, then Enter
+    // Tab + Enter restart
     if (e.key === 'Tab') {
       e.preventDefault();
       setTabPressed(true);
-      // Clear tab state after 1.5 seconds if Enter isn't pressed
       setTimeout(() => setTabPressed(false), 1500);
       return;
     }
@@ -143,14 +193,17 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
       return;
     }
 
-    // Escape restarts immediately
+    // Escape restarts (or finishes zen mode)
     if (e.key === 'Escape') {
       e.preventDefault();
-      onRestart();
+      if (mode === 'zen' && status === 'typing') {
+        finishGame();
+      } else {
+        onRestart();
+      }
       return;
     }
 
-    // Reset tab state on any other key
     setTabPressed(false);
 
     if (e.key.length !== 1 && e.key !== 'Backspace' && e.key !== ' ') return;
@@ -184,7 +237,6 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
 
     if (e.key.length === 1) {
       setCurrentInput(prev => prev + e.key);
-      // Check for error
       const actualChar = words[currentWordIndex]?.[currentInput.length];
       if (actualChar !== e.key) {
         setErrorsThisSecond(prev => prev + 1);
@@ -257,19 +309,53 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
     );
   };
 
-  return (
-    <div className="flex flex-col items-center w-full">
-      {status === 'idle' ? (
+  // Status indicator text
+  const renderStatusIndicator = () => {
+    if (status === 'idle') {
+      return (
         <div className="flex justify-center items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm h-8">
           <Globe className="w-4 h-4" /> english
         </div>
-      ) : status === 'typing' ? (
-        <div className="flex justify-start w-full max-w-[1000px] mb-6 h-8">
-          <span className="text-[var(--accent)] text-2xl font-bold pl-2">{timeLeft}</span>
-        </div>
-      ) : (
-        <div className="h-8 mb-6"></div>
-      )}
+      );
+    }
+
+    if (status === 'typing') {
+      if (mode === 'time' || mode === 'custom') {
+        return (
+          <div className="flex justify-start w-full max-w-[1000px] mb-6 h-8">
+            <span className="text-[var(--accent)] text-2xl font-bold pl-2">{timeLeft}</span>
+          </div>
+        );
+      }
+      if (mode === 'words' || mode === 'quote') {
+        return (
+          <div className="flex justify-between w-full max-w-[1000px] mb-6 h-8 px-2">
+            <span className="text-[var(--accent)] text-lg font-bold">{currentWordIndex}/{words.length}</span>
+            <span className="text-[var(--text-secondary)] text-lg">{elapsedTime}s</span>
+          </div>
+        );
+      }
+      if (mode === 'zen') {
+        return (
+          <div className="flex justify-between w-full max-w-[1000px] mb-6 h-8 px-2">
+            <span className="text-[var(--text-secondary)] text-lg">{elapsedTime}s</span>
+            <button 
+              onClick={finishGame}
+              className="flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors text-sm"
+            >
+              <Square className="w-3.5 h-3.5" /> finish
+            </button>
+          </div>
+        );
+      }
+    }
+
+    return <div className="h-8 mb-6"></div>;
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full">
+      {renderStatusIndicator()}
       
       <div 
         className="relative w-full h-[155px] outline-none overflow-hidden"

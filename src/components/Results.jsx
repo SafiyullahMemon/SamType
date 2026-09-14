@@ -28,12 +28,27 @@ function calculateConsistency(history) {
   if (mean === 0) return 0;
   const variance = wpmValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / wpmValues.length;
   const stdDev = Math.sqrt(variance);
-  // Coefficient of variation inverted to a percentage (lower variance = higher consistency)
   const cv = (stdDev / mean) * 100;
   return Math.max(0, Math.min(100, Math.round(100 - cv)));
 }
 
-export default function Results({ stats, gameTime, onRestart }) {
+function getModeLabel(mode, gameTime, elapsedTime) {
+  switch (mode) {
+    case 'time': return `time ${gameTime}`;
+    case 'words': return `words`;
+    case 'quote': return `quote`;
+    case 'zen': return `zen`;
+    case 'custom': return `custom ${gameTime}`;
+    default: return `time ${gameTime}`;
+  }
+}
+
+function getTimeDisplay(mode, gameTime, elapsedTime) {
+  if (mode === 'time' || mode === 'custom') return `${gameTime}s`;
+  return `${elapsedTime}s`;
+}
+
+export default function Results({ stats, gameTime, mode, elapsedTime, onRestart }) {
   if (!stats) return null;
 
   const { wpm, accuracy, raw, chars, history } = stats;
@@ -58,7 +73,7 @@ export default function Results({ stats, gameTime, onRestart }) {
           
           <div className="flex flex-col text-[var(--text-secondary)] text-sm mt-8 leading-tight">
             <span>test type</span>
-            <span className="text-[var(--accent)]">time {gameTime}</span>
+            <span className="text-[var(--accent)]">{getModeLabel(mode, gameTime, elapsedTime)}</span>
             <span className="text-[var(--accent)]">english</span>
           </div>
         </div>
@@ -78,7 +93,6 @@ export default function Results({ stats, gameTime, onRestart }) {
                 cursor={{ stroke: 'var(--text-secondary)', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
 
-              {/* Raw WPM Line */}
               <Line 
                 type="monotone" 
                 dataKey="raw" 
@@ -89,7 +103,6 @@ export default function Results({ stats, gameTime, onRestart }) {
                 isAnimationActive={true}
               />
 
-              {/* Main WPM Line */}
               <Line 
                 type="monotone" 
                 dataKey="wpm" 
@@ -100,7 +113,6 @@ export default function Results({ stats, gameTime, onRestart }) {
                 isAnimationActive={true}
               />
               
-              {/* Errors (Red X's) */}
               <Line 
                 type="monotone" 
                 dataKey="errors" 
@@ -131,7 +143,7 @@ export default function Results({ stats, gameTime, onRestart }) {
         </div>
         <div className="flex flex-col">
           <span className="text-[var(--text-secondary)]">time</span>
-          <span className="text-[var(--accent)] text-4xl mt-1">{gameTime}s</span>
+          <span className="text-[var(--accent)] text-4xl mt-1">{getTimeDisplay(mode, gameTime, elapsedTime)}</span>
         </div>
       </div>
 
