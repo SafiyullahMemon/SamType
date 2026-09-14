@@ -9,6 +9,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
   
   const [history, setHistory] = useState([]);
   const [errorsThisSecond, setErrorsThisSecond] = useState(0);
+  const [tabPressed, setTabPressed] = useState(false);
   
   const containerRef = useRef(null);
   const timerRef = useRef(null);
@@ -25,6 +26,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
       setCurrentInput('');
       setHistory([]);
       setErrorsThisSecond(0);
+      setTabPressed(false);
       clearInterval(timerRef.current);
       if (containerRef.current) {
         containerRef.current.style.marginTop = '0px';
@@ -63,6 +65,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
           if (i < state.typedWords.length) missed++;
         }
       }
+      // Count the space between words as a correct character for completed words
       if (i < state.typedWords.length) {
          correct++; 
       }
@@ -97,13 +100,11 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
           
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            // End game requires latest state
             const finalStats = calculateCurrentStats(stateRef.current);
             const finalTimeElapsedMin = gameTime / 60;
             const finalWpm = (finalStats.correct / 5) / finalTimeElapsedMin;
             const finalAccuracy = finalStats.totalTyped > 0 ? (finalStats.correct / (finalStats.correct + finalStats.incorrect + finalStats.extra + finalStats.missed)) * 100 : 0;
             
-            // Wait for history state to update, then pass everything
             setHistory(latestHistory => {
                onGameEnd({
                  wpm: finalWpm,
@@ -126,11 +127,31 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
   const handleKeyDown = (e) => {
     if (status === 'finished') return;
     
-    if (e.key === 'Tab' || (e.key === 'Enter' && e.shiftKey)) {
-        e.preventDefault();
-        onRestart();
-        return;
+    // Tab + Enter restart: press Tab first, then Enter
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      setTabPressed(true);
+      // Clear tab state after 1.5 seconds if Enter isn't pressed
+      setTimeout(() => setTabPressed(false), 1500);
+      return;
     }
+
+    if (e.key === 'Enter' && tabPressed) {
+      e.preventDefault();
+      setTabPressed(false);
+      onRestart();
+      return;
+    }
+
+    // Escape restarts immediately
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onRestart();
+      return;
+    }
+
+    // Reset tab state on any other key
+    setTabPressed(false);
 
     if (e.key.length !== 1 && e.key !== 'Backspace' && e.key !== ' ') return;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
@@ -141,7 +162,7 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
 
     if (e.key === ' ') {
       e.preventDefault();
-      if (currentInput.length > 0 || e.key === ' ') { 
+      if (currentInput.length > 0) { 
         setTypedWords([...typedWords, currentInput]);
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentInput('');
@@ -196,7 +217,6 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
     
     const chars = [];
     const len = Math.max(word.length, typedVal.length);
-    let isWordIncorrect = false;
     
     for (let i = 0; i < len; i++) {
       let charClass = "text-[var(--text-secondary)] opacity-50"; 
@@ -209,7 +229,6 @@ export default function TypingArea({ words, status, setStatus, timeLeft, setTime
           charClass = "text-[var(--text-primary)]";
         } else {
           charClass = actualChar ? "text-[var(--error)]" : "text-[var(--extra)] opacity-70"; 
-          isWordIncorrect = true;
         }
       }
 

@@ -4,7 +4,6 @@ import { RotateCcw, ChevronRight, TriangleAlert, AlignLeft, Rewind, Image as Ima
 
 const ErrorDot = (props) => {
   const { cx, cy, value } = props;
-  // payload.errors is tracked
   if (!value) return null;
   
   return (
@@ -22,13 +21,26 @@ const ErrorDot = (props) => {
   );
 };
 
+function calculateConsistency(history) {
+  if (!history || history.length < 2) return 0;
+  const wpmValues = history.map(h => h.wpm);
+  const mean = wpmValues.reduce((a, b) => a + b, 0) / wpmValues.length;
+  if (mean === 0) return 0;
+  const variance = wpmValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / wpmValues.length;
+  const stdDev = Math.sqrt(variance);
+  // Coefficient of variation inverted to a percentage (lower variance = higher consistency)
+  const cv = (stdDev / mean) * 100;
+  return Math.max(0, Math.min(100, Math.round(100 - cv)));
+}
+
 export default function Results({ stats, gameTime, onRestart }) {
   if (!stats) return null;
 
   const { wpm, accuracy, raw, chars, history } = stats;
+  const consistency = calculateConsistency(history);
 
   return (
-    <div className="w-full flex flex-col items-center animate-fade-in font-mono">
+    <div className="w-full flex flex-col items-center results-fade-in font-mono">
       
       <div className="flex w-full justify-between items-stretch">
         
@@ -115,10 +127,7 @@ export default function Results({ stats, gameTime, onRestart }) {
         </div>
         <div className="flex flex-col">
           <span className="text-[var(--text-secondary)]">consistency</span>
-          <span className="text-[var(--accent)] text-4xl mt-1">
-             {/* Mock consistency calculation based on history variance */}
-             {Math.round(80 + Math.random() * 15)}%
-          </span>
+          <span className="text-[var(--accent)] text-4xl mt-1">{consistency}%</span>
         </div>
         <div className="flex flex-col">
           <span className="text-[var(--text-secondary)]">time</span>

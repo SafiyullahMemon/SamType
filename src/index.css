@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    --bg-color: #0f172a; /* slate 900 */
-    --bg-secondary: #1e293b; /* slate 800 */
-    --text-primary: #f8fafc; /* slate 50 */
-    --text-secondary: #64748b; /* slate 500 */
-    --accent: #38bdf8; /* sky 400 */
+  :root,
+  [data-theme="dark"] {
+    --bg-color: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #64748b;
+    --accent: #38bdf8;
     --accent-hover: #0ea5e9;
-    --error: #ef4444; /* red 500 */
+    --error: #ef4444;
     --extra: #991b1b;
   }
   
@@ -93,7 +95,7 @@
     background-color: var(--bg-color);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
-    font-family: 'Inter', 'Roboto', sans-serif;
+    font-family: 'Roboto Mono', 'Inter', monospace;
   }
 }
 
@@ -110,4 +112,13 @@
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+.results-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

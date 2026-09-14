@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Heart, GitBranch, MessageSquare, MessageCircle, FileText, Shield, Lock, Palette } from 'lucide-react';
+import { Palette } from 'lucide-react';
 
 const THEMES = ['dark', 'light', 'cyberpunk', 'matcha', 'dracula', 'nord', 'synthwave', 'terminal'];
 
@@ -11,7 +11,7 @@ export default function Footer({ theme, setTheme }) {
           <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">tab</span> + <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">enter</span> - restart test
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">esc</span> or <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">ctrl</span> + <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">shift</span> + <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">p</span> - command line
+          <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--text-primary)]">esc</span> - restart test
         </span>
       </div>
       
