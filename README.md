@@ -81,7 +81,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** in your browser and start typing!
+Open **[samtype-ten.vercel.app](https://samtype-ten.vercel.app/)** in your browser and start typing!
 
 ---
 
